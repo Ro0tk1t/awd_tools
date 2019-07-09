@@ -14,8 +14,9 @@ nest_asyncio.apply()
 
 @dataclass(init=True)
 class Tony():
-    enemise: list#[str]
-    old_pwd: str
+    enemise: list
+    usernames: list
+    old_pwd: list
     new_pwd: str
     change: bool
     output: str = None
@@ -30,7 +31,11 @@ class Tony():
             self.loop.run_until_complete(self.try2change_enemy())
 
     async def try2change_enemy(self):
-        pass
+        for enemy in filter(lambda x:'ssh' in x[1], self.alived_enemise.items()):
+            enemy_name = enemy[0]
+            status = Javise.change_enemy(enemy_name, self.usernames, self.old_pwd, self.new_pwd)
+            if status:
+                self.alived_enemise[enemy_name].append('change_seccess')
 
     @classmethod
     async def search_alive(cls, enemise, loop=None):
