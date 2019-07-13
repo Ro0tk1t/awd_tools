@@ -1,0 +1,13 @@
+{% extends 'navbar.html' %}
+{% block title %}Page not found!{% endblock %}
+
+{% block page_content %}
+<center>
+    <b style="font-size:100px">404</b><br>
+    <p style="font-size:40px">Oops! &nbsp&nbsp&nbsp Page Not Found !</p>
+
+    {% for msg in get_flashed_messages() %}
+    <b style="color:red">{{ msg }}</b>
+    {% endfor %}
+</center>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "bootstrap/base.html" %}
+
+{% block navbar %}
+
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="/">
+                <span class="glyphicon glyphicon-heart" aria-hidden="true" style="font-size:20px"></span> 首页
+            </a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <form class="navbar-form navbar-left" method="POST" action="{{ url_for('search') }}">
+                <div class="input-group">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
+                    <input type="text" class="form-control" placeholder="Search" id="search-input" name="keyword"
+                           value="{{ value | escape }}">
+                </div>
+                <button type="submit" class="btn btn-default" name="KW">搜索</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                <li>
+                    <a href="{{ url_for('logout') }}">登出</a>
+                </li>
+                <li>
+                    {% if current_user.role == 'admin' %}
+                    <a href="/admin">(<b>{{ current_user.username }}</b>)管理后台</a>
+                    {% elif current_user.role == 'doctor' %}
+                    <a href="{{ url_for('doctor.index') }}">(<b>{{ current_user.username }}</b>)个人中心</a>
+                    {% else %}
+                    <a href="{{ url_for('home.index') }}">(<b>{{ current_user.username }}</b>)个人中心</a>
+                    {% endif %}
+                </li>
+                {% else %}
+                <li>
+                    <a href="{{ url_for('login') }}">登录</a>
+                </li>
+                <li class="dropdown">
+                    <a href="regist" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">注册 <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">邮箱注册</a></li>
+                        <li><a href="#">手机号注册</a></li>
+                        <li><a href="#">QQ注册</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="/regist">直接注册</a></li>
+                    </ul>
+                </li>
+                {% endif %}
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav><br><br><br>
+
+{% endblock %}
+
+
+{%- block content %}
+
+{%- block page_content %}
+{% for msg in get_flashed_messages() %}
+<center><b>{{ msg }}</b></center>
+{% endfor %}
+{%- endblock page_content %}
+
+<center class="footer">
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+            Copyright &copy; 京 2014-2019 &nbsp&nbsp&nbsp Powered by <a href="https://github.com/Ro0tk1t">Rootkit</a>
+        </div>
+    </nav>
+</center>
+{%- endblock content %}
