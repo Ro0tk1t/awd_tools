@@ -9,6 +9,7 @@ from flask_login import (LoginManager,
         current_user, login_required)
 from flask_admin import Admin
 from flask_bootstrap import Bootstrap
+from datetime import timedelta
 
 from admin import blue_admin
 from forms import LoginForm
@@ -24,7 +25,11 @@ admin = Admin(app, name='hail hydra', template_mode='bootstrap3')
 app.register_blueprint(blue_admin)
 
 login_manager = LoginManager()
+login_manager.session_protection = 'strong'
 login_manager.init_app(app)
+
+# login expired time
+app.permanent_session_lifetime = timedelta(minutes=120)
 
 @app.errorhandler(404)
 def not_found(error):
@@ -36,7 +41,7 @@ def load_user(userid):
 
 @app.route('/')
 def index():
-    if 'user' in session:
+    if current_user and current_user.is_active:
         return redirect('/admin')
     else:
         return render_template('401.html'), 401
@@ -50,7 +55,6 @@ def login():
         remember = form.remember.data
         user = User.objects(name=name, pwd=pwd).first()
         if user:
-            session['user'] = user.name
             flash('login success !', category='login success')
             login_user(user, remember=form.remember.data)
             return redirect('/admin')
@@ -60,7 +64,6 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.clear()
     logout_user()
     flash('You have been logged out')
     return redirect(url_for('index'))
