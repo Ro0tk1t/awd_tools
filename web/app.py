@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from flask import (
+from flask import ( url_for,
         Flask, render_template, session,
         redirect, abort, flash, request)
+from flask_login import (LoginManager,
+        logout_user, login_user,
+        current_user, login_required)
 from flask_admin import Admin
-from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
 
 from admin import blue_admin
@@ -28,6 +30,10 @@ login_manager.init_app(app)
 def not_found(error):
     return render_template('404.html'), 404
 
+@login_manager.user_loader
+def load_user(userid):
+    return User.objects(id=userid).first()
+
 @app.route('/')
 def index():
     if 'user' in session:
@@ -39,13 +45,25 @@ def index():
 def login():
     form = LoginForm()
     if request.method == 'POST' and form.validate_on_submit():
-        name = form.name.data
-        pwd = form.pwd.data
+        name = form.username.data
+        pwd = form.password.data
         remember = form.remember.data
-        user = User.first_or_404(name=name, pwd=pwd)
-        session['user'] = user.name
-    elif request.method == 'GET':
-        return render_template('login.html', form=form)
+        user = User.objects(name=name, pwd=pwd).first()
+        if user:
+            session['user'] = user.name
+            flash('login success !', category='login success')
+            login_user(user, remember=form.remember.data)
+            return redirect('/admin')
+        else:
+            return render_template('login.html', form=form, status=0)
+    return render_template('login.html', form=form)
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    logout_user()
+    flash('You have been logged out')
+    return redirect(url_for('index'))
 
 @app.route('/search')
 def search():

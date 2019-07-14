@@ -9,6 +9,6 @@ from db import User
 
 
 class LoginForm(FlaskForm):
-    name = StringField("Username", [DataRequired(), Length(max=20)])
-    pwd = StringField("Password", [DataRequired()])
+    username = StringField("Username", [DataRequired(), Length(max=20)])
+    password = StringField("Password", [DataRequired()])
     remember = BooleanField('Remember Me')

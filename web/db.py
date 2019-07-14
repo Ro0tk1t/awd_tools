@@ -14,12 +14,16 @@ mongo = MongoEngine(app)
 
 
 class User(mongo.Document):
-    id = mongo.IntField(required=True, unique=True, default=1)
+    id = mongo.IntField(primary_key=True, required=True, default=1)
     name = mongo.StringField(required=True, unique=True, default='admin')
+    nike = mongo.StringField(required=True, default='admin')
     pwd = mongo.StringField(required=True, default='h4dr@')
 
-    def __init__(self, name):
-        self.name = name
+    def is_active(self):
+        return True
+
+    def get_id(self):
+        return self.id
 
     def __repr__(self):
         return '<User:  %r>' % self.name
