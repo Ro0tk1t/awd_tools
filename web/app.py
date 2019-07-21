@@ -22,7 +22,7 @@ bootstrap = Bootstrap()
 bootstrap.init_app(app)
 app.config.from_object(Config)
 app.config['FLASK_ADMIN_SWATCH'] = 'superhero'
-admin = Admin(app, name='hail hydra', template_mode='bootstrap3')
+admin = Admin(app, name='Hail Hydra', template_mode='bootstrap3')
 admin.add_view(MV(User))
 app.register_blueprint(blue_admin)
 
@@ -43,7 +43,7 @@ def load_user(userid):
 
 @app.route('/')
 def index():
-    if current_user and current_user.is_active:
+    if all([current_user.is_authenticated, current_user.is_active]):
         return redirect('/admin')
     else:
         return render_template('401.html'), 401
@@ -61,7 +61,7 @@ def login():
             login_user(user, remember=form.remember.data)
             return redirect('/admin')
         else:
-            return render_template('login.html', form=form, status=0)
+            return render_template('login.html', form=form, status=1)
     return render_template('login.html', form=form)
 
 @app.route('/logout')

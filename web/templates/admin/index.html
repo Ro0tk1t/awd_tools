@@ -1,0 +1,10 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<h1>
+    {% if not current_user.is_authenticated %}
+    <center>Please <b><a href="{{ url_for('login') }}"> Login </a></b></center>
+    {% endif %}
+</h1>
+{{ super() }}
+{% endblock %} 
