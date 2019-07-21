@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from flask import ( url_for,
-        Flask, render_template, session,
+from flask import (url_for, Flask,
+        render_template, session,
         redirect, abort, flash, request)
 from flask_login import (LoginManager,
         logout_user, login_user,
@@ -11,6 +11,7 @@ from flask_admin import Admin
 from flask_bootstrap import Bootstrap
 from datetime import timedelta
 
+from admin.views import MV
 from admin import blue_admin
 from forms import LoginForm
 from config import Config
@@ -22,6 +23,7 @@ bootstrap.init_app(app)
 app.config.from_object(Config)
 app.config['FLASK_ADMIN_SWATCH'] = 'superhero'
 admin = Admin(app, name='hail hydra', template_mode='bootstrap3')
+admin.add_view(MV(User))
 app.register_blueprint(blue_admin)
 
 login_manager = LoginManager()

@@ -4,6 +4,7 @@
 from flask import Flask
 from flask_mongoengine import MongoEngine
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import AnonymousUserMixin
 from config import DevConfig
 
 app = Flask('hydra')
@@ -18,6 +19,12 @@ class User(mongo.Document):
     name = mongo.StringField(required=True, unique=True, default='admin')
     nike = mongo.StringField(required=True, default='admin')
     pwd = mongo.StringField(required=True, default='h4dr@')
+
+    def is_authenticated(self):
+        if isinstance(self, AnonymousUserMixin):
+            return False
+        else:
+            return True
 
     def is_active(self):
         return True
