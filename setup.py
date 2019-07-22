@@ -26,6 +26,7 @@ setup(
         'Flask-Login',
         'Flask-MongoEngine',
         'Flask-Bootstrap',
+        'flask-restful',
 
         'yarl',
         'pymongo',
