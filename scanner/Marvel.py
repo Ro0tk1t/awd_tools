@@ -7,7 +7,7 @@ import asyncio
 from dataclasses import dataclass
 from asyncio.unix_events import _UnixSelectorEventLoop as LOOP
 
-import Javise
+from scanner import Javise
 
 import nest_asyncio
 nest_asyncio.apply()
