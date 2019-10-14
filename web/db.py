@@ -34,3 +34,13 @@ class User(mongo.Document):
 
     def __repr__(self):
         return '<User:  %r>' % self.name
+
+
+#class ScanLog(mongo.Document):
+#    # 0: not start, 1: starting, 2: running, 4: finished, 5: terminated
+#    status = mongo.IntField(default=0)
+#
+#
+#class ScanResult(mongo.Document):
+#    scan_log = mongo.ReferenceField(ScanLog)
+#    results = mongo.ListField()

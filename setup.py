@@ -12,7 +12,7 @@ setup(
     description='AWD scanner',
     author='ro0tk1t',
     packages=find_packages(),
-    python_requires=">=3.6.3",
+    python_requires=">=3.7",
     include_package_data=True,
     entry_points={
         "console_scripts":[
@@ -25,7 +25,8 @@ setup(
         'Flask-Admin',
         'Flask-Login',
         'Flask-MongoEngine',
-        'Flask-Bootstrap',
+        'Flask-Bootstrap4',
+        'Flask-PyMongo',
         'flask-restful',
 
         'yarl',

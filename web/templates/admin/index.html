@@ -4,6 +4,8 @@
 <h1>
     {% if not current_user.is_authenticated %}
     <center>Please <b><a href="{{ url_for('login') }}"> Login </a></b></center>
+    {% else %}
+    <b>Test<b>
     {% endif %}
 </h1>
 {{ super() }}

